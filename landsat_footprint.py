@@ -121,35 +121,36 @@ def ffp_matched_to_landsat(landsat,ffp):
         for valid in inside_ffp:
             holding_x[i][valid] = ffp['xr'][i][valid]
             holding_y[i][valid] = ffp['yr'][i][valid]
-            
+
 
     for i in range(len(landsat['lonData'])):
         # Variable that holds each pixel's: [0] left bound, [1]right bound, [2] upper bound, [3] lower bound
-        pixel = []
-        pixel.append(landsat['lonData'][i] - 15)
-        pixel.append(landsat['lonData'][i] + 15)
-        pixel.append(landsat['latData'][i] + 15)
-        pixel.append(landsat['latData'][i] - 15)
-        
+        pixel = [
+            landsat['lonData'][i] - 15,
+            landsat['lonData'][i] + 15,
+            landsat['latData'][i] + 15,
+            landsat['latData'][i] - 15,
+        ]
+
         ffp_bin = {'xr':[],'yr':[],'co2':[],'ch4':[],'h':[]} # List holding all the ffp points that falls within satellite pixel
-        
+
         for j in range(101):
             for j2 in range(101):
                 if ~np.isnan(holding_x[j][j2]) and ~np.isnan(holding_y[j][j2]):
                     ffp_xr = ffp['xr'][j][j2]
                     ffp_yr = ffp['yr'][j][j2]
-                    
+
                     if ffp_xr > pixel[0] and ffp_xr < pixel[1] and  ffp_yr < pixel[2] and ffp_yr > pixel[3]:
-                        
+
                         ffp_bin['co2'].append(ffp['co2'][j][j2])
                         ffp_bin['ch4'].append(ffp['ch4'][j][j2])
                         ffp_bin['h'].append(ffp['h'][j][j2])
                         ffp_bin['xr'].append(ffp_xr)
                         ffp_bin['yr'].append(ffp_yr)
-                        
+
         if i % 100 == 0:
             print(f'progress: {i}/{len(landsat["lonData"])}')
-                
+
         matched_ffp['co2'].append(np.nanmean(ffp_bin['co2']))
         matched_ffp['ch4'].append(np.nanmean(ffp_bin['ch4']))
         matched_ffp['h'].append(np.nanmean(ffp_bin['h']))
